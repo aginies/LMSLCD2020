@@ -24,3 +24,9 @@ LCD 20x4 show information from the Logitech Media Server
 # Original idea
 
 https://github.com/renaudrenaud/LMSLCD2020
+
+# External Source and code
+
+* http://www.gejanssen.com/howto/i2c_display_2004_raspberrypi/index.html
+* https://www.circuitbasics.com/raspberry-pi-i2c-lcd-set-up-and-programming/
+* https://readthedocs.org/projects/rplcd/downloads/pdf/latest/
