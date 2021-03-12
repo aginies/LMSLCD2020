@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # 
-# original code from https://github.com/aginies/LMSLCD2020
+# original code from https://github.com/renaudrenaud/LMSLCD2020
 #
 
 import argparse
