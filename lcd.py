@@ -19,13 +19,12 @@ description = "LMS API Requester"
 server_help = "ip and port for the server. something like 192.168.1.192:9000"
 lcd_help = "LCD address something like 0x27"
 i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2"
-if_inter = "Network Interface to  use"
+if_inter = "Network Interface to use"
 
 parser = argparse.ArgumentParser(description = description)
-parser.add_argument("-s","--server", type=str, default="10.0.1.130:9000", help = server_help)
+parser.add_argument("-s","--server", type=str, default="10.0.1.140:9000", help = server_help)
 parser.add_argument("-l","--lcd", type=lambda x: int(x, 0), default=0x27, help = lcd_help)
 parser.add_argument("-i","--i2cport", type=int, default=1, help = i2c_help)
-parser.add_argument("-v","--virtuallcd", type=str, default="no", help = lcd_help)
 parser.add_argument("-e","--inet", type=str, default="eth0", help = if_inter)
 
 args = parser.parse_args()
@@ -158,9 +157,9 @@ while True:
         else:
 #            lcd.display_on()
             title = song_title
-            max_car1 = len(title) - 20
-            max_car2 = len(artist) - 20
-            max_car3 = len(album) -20
+            max_car1 = len(artist) - 20
+            max_car2 = len(album) - 20
+            max_car3 = len(title) -20
             if decal1 > max_car1:
                 decal1 = 0
             if decal2 > max_car2:
@@ -168,9 +167,9 @@ while True:
             if decal3 > max_car3:
                 decal3 =0
 
-            lcd.lcd_display_string(artist[decal2:20 + decal2], 1)
-            lcd.lcd_display_string(album[decal3:20 + decal3], 2)
-            lcd.lcd_display_string(title[decal1:20 + decal1], 3)
+            lcd.lcd_display_string(artist[decal1:20 + decal1], 1)
+            lcd.lcd_display_string(album[decal2:20 + decal2], 2)
+            lcd.lcd_display_string(title[decal3:20 + decal3], 3)
 
             samplerate = str(lesssamplerate)
             # handle case of SACD
@@ -181,6 +180,7 @@ while True:
             decal1 = decal1 + 1
             decal2 = decal2 + 1
             decal3 = decal3 + 1
+
         last_song = song
         sleep(sleep_duration)
     else:
