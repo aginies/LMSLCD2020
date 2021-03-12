@@ -53,6 +53,7 @@ def getPlayersInfo()->dict:
 
     return None, players
 
+
 def get_from_loop(source_list, key_to_find)->str:
     """
     iterate the list and return the value when the key_to_find is found
@@ -83,19 +84,31 @@ def screen_lms_info():
         lcd.lcd_display_string("LMS not found", 2)
         lcd.lcd_display_string("No player!",3)
     else:
+        #player = myServer.cls_player_current_title_status(player_info['playerid'])
         server = server_status["result"]
-        lcd.lcd_display_string("IP : " + ip, 1)
-        lcd.lcd_display_string("LMS : " + server["version"],2)
-        lcd.lcd_display_string("Players counts:" + str(server["player count"]),3)
+        lcd.lcd_display_string("LCD Displayer's IP:", 1)
+        lcd.lcd_display_string(" " + ip, 2)
+        lcd.lcd_display_string("LMS Version: " + server["version"], 3)
+#        lcd.lcd_display_string("Players counts:" + str(server["player count"]), 4)
+        lcd.lcd_display_string("LMS IP: " + str(server["ip"]), 4)
+        #lcd.lcd_display_string(player_info["name"], 4)
+        sleep(3)
+        lcd.lcd_display_string("Last scan: ", 1)
+        lastscan = server['lastscan']
+        lastscanreadable = strftime("  %D %H:%M", gmtime(int(lastscan)))
+        lcd.lcd_display_string(lastscanreadable, 2) 
+        lcd.lcd_display_string("Albums : " + str(server["info total albums"]), 3)
+        lcd.lcd_display_string("Songs  : " + str(server["info total songs"]), 4)
+        sleep(3)
 
 
 import lcddriver
 lcd = lcddriver.lcd(address = args.lcd, i2c_port = args.i2cport, columns=20)
+lcd.backlight_off()
 lcd.display_on()
 myServer = LMS_SERVER(args.server)
 server_status = myServer.cls_server_status()
 screen_lms_info()
-sleep(1)
 
 last_song = {}
 album = ""
@@ -103,21 +116,20 @@ decal = 0
 song_info = None
 sleep_duration = 0.6
 
+# add a timer to switch display on line 4
+timer = 0
 while True:
     # seconds = time()
-    today = datetime.today()
-    if today.second == 0:
-        server_status = myServer.cls_server_status()
+#    today = datetime.today()
+#    if today.second == 0:
+#        server_status = myServer.cls_server_status()
     player_info, players = getPlayersInfo()
 
-
     if player_info is not None and type(server_status) is dict:
-        # sec = int(today.strftime("%S"))
         player = myServer.cls_player_current_title_status(player_info['playerid'])
 
         song_index = int(player["playlist_cur_index"])
         song = player["playlist_loop"][song_index]
-
         if int(song["id"]) != 0:
             lcd.display_on()
             # When id is positive, it comes from LMS database
@@ -138,6 +150,10 @@ while True:
                     samplerate = get_from_loop(song_info["songinfo_loop"], "samplerate")
                     lesssamplerate = float(samplerate)/1000
                     bitrate = get_from_loop(song_info["songinfo_loop"], "bitrate")
+                    songtype = get_from_loop(song_info["songinfo_loop"], "type")
+                    tracknumber = get_from_loop(song_info["songinfo_loop"], "tracknum")
+                    trackyear = get_from_loop(song_info["songinfo_loop"], "year")
+                    albumyear = album + " (" + trackyear + ")"
 
                     duration = get_from_loop(song_info["songinfo_loop"],"duration")
                     dur_hh_mm_ss = strftime("%H:%M:%S", gmtime(int(duration)))
@@ -150,15 +166,10 @@ while True:
         if False:
             pass
 
-        elif player["time"] < 2:
-            elapsed = strftime("%M:%S", gmtime(player["time"])) + "-" + strftime("%M:%S", gmtime(int(duration)))
-            lcd.lcd_display_string("" + track_pos + " " + elapsed, 4)
-
         else:
-#            lcd.display_on()
             title = song_title
             max_car1 = len(artist) - 20
-            max_car2 = len(album) - 20
+            max_car2 = len(albumyear) - 20
             max_car3 = len(title) -20
             if decal1 > max_car1:
                 decal1 = 0
@@ -167,27 +178,34 @@ while True:
             if decal3 > max_car3:
                 decal3 =0
 
+#            title = tracknumber + ") " + title
             lcd.lcd_display_string(artist[decal1:20 + decal1], 1)
-            lcd.lcd_display_string(album[decal2:20 + decal2], 2)
+            lcd.lcd_display_string(albumyear[decal2:20 + decal2], 2)
             lcd.lcd_display_string(title[decal3:20 + decal3], 3)
 
-            samplerate = str(lesssamplerate)
-            # handle case of SACD
-            if bitrate == "0":
-                bitrate = ''
-            lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20], 4)
+            # change between RATE of the songs and time remaining
+            lasttimer = int(str(timer)[-1:])
+            if (lasttimer < 4):
+                samplerate = str(lesssamplerate)
+                # handle case of SACD
+                if bitrate == "0":
+                    bitrate = ''
+                lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
+            else:
+                elapsed = strftime("%M:%S", gmtime(player["time"])) + " (" + strftime("%M:%S", gmtime(int(duration))) + ")"
+                lcd.lcd_display_string("" + track_pos + "   " + elapsed, 4)
 
             decal1 = decal1 + 1
             decal2 = decal2 + 1
             decal3 = decal3 + 1
 
         last_song = song
+        timer += 1
         sleep(sleep_duration)
     else:
         today = datetime.today()
         lcd.lcd_display_string("IP : " + ip, 1)
         lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
-        #lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
+        lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
         lcd.lcd_display_string("No LMS Playing Music? ", 4)
-        #lcd.backlight_off()
         sleep(1)
