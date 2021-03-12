@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # 
-# original code from https://github.com/renaudrenaud/LMSLCD2020
+# https://github.com/aginies/LMSLCD2020
 #
 
 import argparse
@@ -14,23 +14,27 @@ from typing import ChainMap
 from lmsmanager import LMS_SERVER
 import socket
 import netifaces as ni
+import signal
+import sys
 
+# HELP
 description = "LMS API Requester"
 server_help = "ip and port for the server. something like 192.168.1.192:9000"
 lcd_help = "LCD address something like 0x27"
 i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2"
 if_inter = "Network Interface to use"
 
+# PARSER
 parser = argparse.ArgumentParser(description = description)
 parser.add_argument("-s","--server", type=str, default="10.0.1.140:9000", help = server_help)
 parser.add_argument("-l","--lcd", type=lambda x: int(x, 0), default=0x27, help = lcd_help)
 parser.add_argument("-i","--i2cport", type=int, default=1, help = i2c_help)
 parser.add_argument("-e","--inet", type=str, default="eth0", help = if_inter)
-
 args = parser.parse_args()
+
+# GET IP FROM INTERFACE
 hostnm = socket.gethostname()
 ip = ni.ifaddresses(args.inet)[ni.AF_INET][0]['addr']
-
 
 def getPlayersInfo()->dict:
     """
@@ -89,11 +93,11 @@ def screen_lms_info():
         lcd.lcd_display_string("LCD Displayer's IP:", 1)
         lcd.lcd_display_string(" " + ip, 2)
         lcd.lcd_display_string("LMS Version: " + server["version"], 3)
-#        lcd.lcd_display_string("Players counts:" + str(server["player count"]), 4)
+        #lcd.lcd_display_string("Players counts:" + str(server["player count"]), 4)
         lcd.lcd_display_string("LMS IP: " + str(server["ip"]), 4)
         #lcd.lcd_display_string(player_info["name"], 4)
         sleep(3)
-        lcd.lcd_display_string("Last scan: ", 1)
+        lcd.lcd_display_string("Last Scan: ", 1)
         lastscan = server['lastscan']
         lastscanreadable = strftime("  %D %H:%M", gmtime(int(lastscan)))
         lcd.lcd_display_string(lastscanreadable, 2) 
@@ -106,23 +110,32 @@ import lcddriver
 lcd = lcddriver.lcd(address = args.lcd, i2c_port = args.i2cport, columns=20)
 lcd.backlight_off()
 lcd.display_on()
+
+# TURN OFF DISPLAY in CASE OF CTRL+C
+def signal_handler(sig, frame):
+    print('Catch a Crtl+C !\n Turning off the LCD\n')
+    lcd.display_off()
+    sleep(1)
+    lcd.backlight_off()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+# STARTING
 myServer = LMS_SERVER(args.server)
 server_status = myServer.cls_server_status()
 screen_lms_info()
 
+# INIT SOME VARS
 last_song = {}
 album = ""
 decal = 0
 song_info = None
-sleep_duration = 0.6
+sleep_duration = 0.4
 
 # add a timer to switch display on line 4
 timer = 0
 while True:
-    # seconds = time()
-#    today = datetime.today()
-#    if today.second == 0:
-#        server_status = myServer.cls_server_status()
     player_info, players = getPlayersInfo()
 
     if player_info is not None and type(server_status) is dict:
@@ -208,4 +221,3 @@ while True:
         lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
         lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
         lcd.lcd_display_string("No LMS Playing Music? ", 4)
-        sleep(1)
