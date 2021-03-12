@@ -1,17 +1,18 @@
+#!/usr/bin/python3
 """
-LCD driver from 
+LCD driver from
 
 https://github.com/sweetpi/python-i2c-lcd/blob/master/lcddriver.py
 
 - Do not forget to instantiate with the address value using sudo i2cdetect -y 1
- 
+
 """
 
 
 from time import sleep
 import i2c_lib
 # LCD Address
-# ADDRESS = 0x3f
+# ADDRESS = 0x27
 
 # commands
 LCD_CLEARDISPLAY = 0x01
@@ -60,63 +61,79 @@ Rw = 0b00000010 # Read/Write bit
 Rs = 0b00000001 # Register select bit
 
 class lcd:
-   #initializes objects and lcd
-   def __init__(self, address:int = 0x3f, columns:int = 16, lines:int = 2, i2c_port:int = 1) -> None:
-      """
-      Input
-      - address: int, the LCD address in hex format, grabbed by sudo i2cdetect -y 1, ie 0x3f or 0x27...
+    #initializes objects and lcd
+    def __init__(self, address:int = 0x27, columns:int = 16, lines:int = 2, i2c_port:int = 1) -> None:
+        """
+        Input
+        - address: int, the LCD address in hex format, grabbed by sudo i2cdetect -y 1, ie 0x3f or 0x27...
 
-      Ouput
-      - None
-      """
-      self.columns = columns
-      self. lines = lines
+        Ouput
+        - None
+        """
+        self.columns = columns
+        self. lines = lines
 
-      self.lcd_device = i2c_lib.i2c_device(address, port = i2c_port)
+        self.lcd_device = i2c_lib.i2c_device(address, port = i2c_port)
 
-      self.lcd_write(0x03)
-      self.lcd_write(0x03)
-      self.lcd_write(0x03)
-      self.lcd_write(0x02)
+        self.lcd_write(0x03)
+        self.lcd_write(0x03)
+        self.lcd_write(0x03)
+        self.lcd_write(0x02)
 
-      self.lcd_write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE)
-      self.lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
-      self.lcd_write(LCD_CLEARDISPLAY)
-      self.lcd_write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
-      sleep(0.2)
+        self.lcd_write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE)
+        self.lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
+        self.lcd_write(LCD_CLEARDISPLAY)
+        self.lcd_write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
+        sleep(0.2)
 
-   # clocks EN to latch command
-   def lcd_strobe(self, data):
-      self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
-      sleep(.0005)
-      self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
-      sleep(.0001)
+    # clocks EN to latch command
+    def lcd_strobe(self, data):
+        self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
+        sleep(.0005)
+        self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
+        sleep(.0001)
 
-   def lcd_write_four_bits(self, data):
-      self.lcd_device.write_cmd(data | LCD_BACKLIGHT)
-      self.lcd_strobe(data)
+    def lcd_write_four_bits(self, data):
+        self.lcd_device.write_cmd(data | LCD_BACKLIGHT)
+        self.lcd_strobe(data)
 
-   # write a command to lcd
-   def lcd_write(self, cmd, mode=0):
-      self.lcd_write_four_bits(mode | (cmd & 0xF0))
-      self.lcd_write_four_bits(mode | ((cmd << 4) & 0xF0))
+    # write a command to lcd
+    def lcd_write(self, cmd, mode=0):
+        self.lcd_write_four_bits(mode | (cmd & 0xF0))
+        self.lcd_write_four_bits(mode | ((cmd << 4) & 0xF0))
 
-   # put string function
-   def lcd_display_string(self, string, line):
-      string = (string + " " * (self.columns) )[:self.columns]
-      if line == 1:
-         self.lcd_write(0x80)
-      if line == 2:
-         self.lcd_write(0xC0)
-      if line == 3:
-         self.lcd_write(0x94)
-      if line == 4:
-         self.lcd_write(0xD4)
+    # put string function
+    def lcd_display_string(self, string, line):
+        string = (string + " " * (self.columns) )[:self.columns]
+        if line == 1:
+            self.lcd_write(0x80)
+        if line == 2:
+            self.lcd_write(0xC0)
+        if line == 3:
+            self.lcd_write(0x94)
+        if line == 4:
+            self.lcd_write(0xD4)
 
-      for char in string:
-         self.lcd_write(ord(char), Rs)
+        for char in string:
+            self.lcd_write(ord(char), Rs)
 
-   # clear lcd and set to home
-   def lcd_clear(self):
-      self.lcd_write(LCD_CLEARDISPLAY)
-      self.lcd_write(LCD_RETURNHOME)
+    # clear lcd and set to home
+    def lcd_clear(self):
+        self.lcd_write(LCD_CLEARDISPLAY)
+        self.lcd_write(LCD_RETURNHOME)
+
+    def backlight_off(self):
+        """turn off backlight, anything that calls write turns it on again"""
+        self.lcd_device.write_cmd(LCD_NOBACKLIGHT)
+
+    def backlight_on(self):
+        """turn on backlight, anything that calls write turns it on again"""
+        self.lcd_device.write_cmd(LCD_BACKLIGHT)
+
+    def display_off(self):
+        """turn off the text display"""
+        self.lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF)
+
+    def display_on(self):
+        """turn on the text display"""
+        self.lcd_write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)

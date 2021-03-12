@@ -1,10 +1,13 @@
-import smbus2
+#!/usr/bin/python3
+# https://github.com/sweetpi/python-i2c-lcd
+
+import smbus
 from time import *
 
 class i2c_device:
    def __init__(self, addr, port=1):
       self.addr = addr
-      self.bus = smbus2.SMBus(port)
+      self.bus = smbus.SMBus(port)
 
 # Write a single command
    def write_cmd(self, cmd):

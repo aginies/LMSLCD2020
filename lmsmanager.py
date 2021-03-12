@@ -1,5 +1,7 @@
+#!/usr/bin/python3
 """
 2020-01-25: Renaud Coustellier Wants some Python3 requests for LMS
+https://github.com/aginies/LMSLCD2020
 """
 
 import requests
