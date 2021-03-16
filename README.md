@@ -3,7 +3,7 @@
 Show information from the Logitech Media Server.
 
 * lcd_20x4.py : for an LCD 20x4 screen
-* lcd_ili9341.py : for an ili9341 screen
+* lcd_ili9341.py : for an ili9341 screen (not tested yet, WIP)
 
 # Features
 
