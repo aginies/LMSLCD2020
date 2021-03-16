@@ -207,7 +207,7 @@ while True:
                 lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
             else:
                 elapsed = strftime("%M:%S", gmtime(player["time"])) + " (" + strftime("%M:%S", gmtime(int(duration))) + ")"
-                lcd.lcd_display_string("" + track_pos + "   " + elapsed, 4)
+                lcd.lcd_display_string("" + track_pos + " " + elapsed, 4)
 
             decal1 = decal1 + 1
             decal2 = decal2 + 1

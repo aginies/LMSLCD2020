@@ -5,6 +5,32 @@ Show information from the Logitech Media Server.
 * lcd_20x4.py : for an LCD 20x4 screen
 * lcd_ili9341.py : for an ili9341 screen
 
+# Features
+
+lcd_20x4.py:
+
+* Support arguments: server, lcd address, i2cport, inet interface
+* At Start:
+** line 2: IP where the script is running
+** line 3: LMS version
+** line 4: IP of the LMS Server
+* After few seconds:
+** line 2: Last scan info
+** line 3: Total Albums
+** line 4: Total Songs
+* While Playing:
+** Line 1: Artist
+** Line 2: Album (Year)
+** Line 3: Song Title
+** Line 4: SampleRate / Bitrate / Type (FLACS, DSF, MP3 etc...)
+** Line 4: Track Numer / Total Tracks 
+** Line 4: Song info : Elapsed Time (Total Time)
+* No Music:
+** IP Where script is running
+** Date
+** Clock
+** Info on Missing LMS
+
 # Python modules used
 
 lcd_20x4.py:
