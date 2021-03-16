@@ -1,13 +1,13 @@
 # LCD display for LMS
 
-Show information from the Logitech Media Server.
+Show information on an LCD screen from a Logitech Media Server (like https://www.daphile.com).
 
 * lcd_20x4.py : for an LCD 20x4 screen
 * lcd_ili9341.py : for an ili9341 screen (not tested yet, WIP)
 
 # Features
 
-lcd_20x4.py:
+**lcd_20x4.py**:
 
 * Support arguments: server, lcd address, i2cport, inet interface
 * At Start:
@@ -31,9 +31,13 @@ lcd_20x4.py:
   * Line 3: Clock
   * Line 4: Info on Missing LMS
 
+**lcd_ili9341**:
+
+* WIP
+
 # Python modules used
 
-lcd_20x4.py:
+**lcd_20x4.py**:
 
 * smbus
 * netifaces
@@ -42,7 +46,7 @@ lcd_20x4.py:
 * json
 * argparse
 
-lcd_ili93941.py:
+**lcd_ili9341.py**:
 
 * netifaces
 * socket
@@ -76,3 +80,6 @@ https://github.com/renaudrenaud/LMSLCD2020
 * http://www.gejanssen.com/howto/i2c_display_2004_raspberrypi/index.html
 * https://www.circuitbasics.com/raspberry-pi-i2c-lcd-set-up-and-programming/
 * https://readthedocs.org/projects/rplcd/downloads/pdf/latest/
+* https://www.raspberrypi.org/forums/viewtopic.php?t=194423
+* https://www.balena.io/blog/add-a-cheap-ili9341-lcd-to-your-resin-io-raspberry-pi-project/
+* https://github.com/adafruit/Adafruit_CircuitPython_RGB_Display
