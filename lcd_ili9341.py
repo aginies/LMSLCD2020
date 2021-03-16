@@ -52,17 +52,14 @@ display = ili9341.ILI9341(
 
 font = ImageFont.truetype("/usr/share/fonts/truetype/DejaVuSans.ttf", 24)
 
-# MAIN
 # HELP
 description = "LMS API Requester"
 server_help = "ip and port for the server. something like 192.168.1.192:9000"
-i2c_help = "i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2"
 if_inter = "Network Interface to use"
 
 # PARSER
 parser = argparse.ArgumentParser(description = description)
 parser.add_argument("-s","--server", type=str, default="10.0.1.140:9000", help = server_help)
-parser.add_argument("-i","--i2cport", type=int, default=1, help = i2c_help)
 parser.add_argument("-e","--inet", type=str, default="eth0", help = if_inter)
 args = parser.parse_args()
 
