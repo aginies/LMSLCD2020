@@ -24,7 +24,7 @@ import busio
 import digitalio
 import board
 from PIL import Image, ImageDraw
-import urllib2
+import urllib3
 from adafruit_rgb_display.rgb import color565
 import adafruit_rgb_display.ili9341 as ili9341
 
