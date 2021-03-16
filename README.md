@@ -35,6 +35,11 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 
 * WIP
 
+
+# Demo
+
+[![Video](images/demo.jpg)](https://youtu.be/KdR81GBlbfc)
+
 # Python modules used
 
 **lcd_20x4.py**:
