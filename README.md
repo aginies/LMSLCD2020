@@ -11,13 +11,13 @@ lcd_20x4.py:
 
 * Support arguments: server, lcd address, i2cport, inet interface
 * At Start:
-  * line 2: IP where the script is running
-  * line 3: LMS version
-  * line 4: IP of the LMS Server
+  * Line 2: IP where the script is running
+  * Line 3: LMS version
+  * Line 4: IP of the LMS Server
 * After few seconds:
-  * line 2: Last scan info
-  * line 3: Total Albums
-  * line 4: Total Songs
+  * Line 2: Last scan info
+  * Line 3: Total Albums
+  * Line 4: Total Songs
 * While Playing:
   * Line 1: Artist
   * Line 2: Album (Year)
@@ -26,10 +26,10 @@ lcd_20x4.py:
   * Line 4: Track Numer / Total Tracks 
   * Line 4: Song info : Elapsed Time (Total Time)
 * No Music:
-  * IP Where script is running
-  * Date
-  * Clock
-  * Info on Missing LMS
+  * Line 1: IP Where script is running
+  * Line 2: Date
+  * Line 3: Clock
+  * Line 4: Info on Missing LMS
 
 # Python modules used
 
