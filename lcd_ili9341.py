@@ -35,6 +35,8 @@ reset_pin = digitalio.DigitalInOut(board.D24)
 
 # Config for display baudrate (default max is 24mhz):
 BAUDRATE = 24000000
+LCDWIDTH = 320
+LCDHEIGHT = 240
 
 # Setup SPI bus using hardware SPI:
 spi = busio.SPI(clock=board.SCK, MOSI=board.MOSI, MISO=board.MISO)
@@ -45,8 +47,8 @@ display = ili9341.ILI9341(
             cs=cs_pin,
             dc=dc_pin,
             rst=reset_pin,
-            wirth=,
-            height=,
+            width=LCDWIDTH,
+            height=LCDHEIGHT,
             baudrate=BAUDRATE
             )
 
