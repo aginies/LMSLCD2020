@@ -129,7 +129,6 @@ screen_lms_info()
 # INIT SOME VARS
 last_song = {}
 album = ""
-decal = 0
 song_info = None
 sleep_duration = 0.4
 
@@ -166,12 +165,14 @@ while True:
                     songtype = get_from_loop(song_info["songinfo_loop"], "type")
                     tracknumber = get_from_loop(song_info["songinfo_loop"], "tracknum")
                     trackyear = get_from_loop(song_info["songinfo_loop"], "year")
-                    albumyear = album + " (" + trackyear + ")"
+                    if int(trackyear) == 0:
+                        albumyear = album
+                    else:
+                        albumyear = album + " (" + trackyear + ")"
 
                     duration = get_from_loop(song_info["songinfo_loop"],"duration")
                     dur_hh_mm_ss = strftime("%H:%M:%S", gmtime(int(duration)))
                     track_pos = str(int(player['playlist_cur_index']) + 1) + "/" + str(player['playlist_tracks'])
-                    decal = 0
                     decal1 = 0
                     decal2 = 0
                     decal3 = 0
