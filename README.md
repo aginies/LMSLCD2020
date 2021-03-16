@@ -3,14 +3,34 @@
 Logitech Media Server to LCD, use API Python 3 and Request
 LCD 20x4 show information from the Logitech Media Server
 
+* lcd_20x4.py : for an LCD screen, 20x4
+* lcd_ili9341.py : for a ili9341 screen
+
 # Python modules used
+
+lcd_20x4.py:
 
 * smbus
 * netifaces
 * time
 * socket
+* signal
 * json
 * argparse
+
+lcd_ili93941.py:
+
+* netifaces
+* time
+* socket
+* signal
+* json
+* argparse
+* PIL
+* urllib2
+* adafruit_rgb_display
+* digitalio
+* board
 
 # Arguments options
 
