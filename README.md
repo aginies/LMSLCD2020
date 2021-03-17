@@ -4,6 +4,7 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 
 * lcd_20x4.py : for an LCD 20x4 screen
 * lcd_ili9341.py : for an ili9341 screen (not tested yet, WIP)
+* lcd_sd1306.py : for an oled SD1306 screen
 
 # Features
 
@@ -64,6 +65,9 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 * adafruit_rgb_display
 * digitalio
 * board
+
+**lcd_sd1306.py**:
+* WIP
 
 # Common Arguments Options 
 
