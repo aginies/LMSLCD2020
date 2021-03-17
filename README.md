@@ -10,6 +10,7 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 **lcd_20x4.py**:
 
 * Support arguments: server, lcd address, i2cport, inet interface
+* Scrolling text if too long
 * At Start:
   * Line 2: IP where the script is running
   * Line 3: LMS version
@@ -74,7 +75,7 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 * **-l --lcd** LCD address something like 0x27
 * **-i --i2cport** i2cdetect port, 0 or 1, 0 for Orange Pi Zero, 1 for Rasp > V2
 
-./lcd_20x4.py -s 10.0.1.29:9000 -l 0x27 -i 0 -e eth0
+./lcd_20x4.py -s 10.0.1.29:9000 -l 0x27 -i 1 -e eth0
 
 # Original idea
 
