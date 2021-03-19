@@ -108,8 +108,9 @@ def screen_lms_info():
 
 import lcddriver
 lcd = lcddriver.lcd(address = args.lcd, i2c_port = args.i2cport, columns=20)
-lcd.backlight_off()
-lcd.display_on()
+# not needed as all lcd write active the screen
+#lcd.backlight_on()
+#lcd.display_on()
 
 # TURN OFF DISPLAY in CASE OF CTRL+C
 def signal_handler(sig, frame):
@@ -120,6 +121,15 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+
+# workaround to turn off screen 
+# each lcd_write wake up the screen, so we can not do
+# display_off and backlight_off....
+# instead display_off and check the backlight_off
+# so only one is done, so no more lcd_write
+def turnoff():
+    lcd.display_off()
+    sleep(2)
 
 # STARTING
 myServer = LMS_SERVER(args.server)
@@ -134,6 +144,8 @@ sleep_duration = 0.4
 
 # add a timer to switch display on line 4
 timer = 0
+# was here to turn off the screen value
+washere = 0
 while True:
     player_info, players = getPlayersInfo()
 
@@ -143,7 +155,7 @@ while True:
         song_index = int(player["playlist_cur_index"])
         song = player["playlist_loop"][song_index]
         if int(song["id"]) != 0:
-            lcd.display_on()
+            #lcd.display_on()
             # When id is positive, it comes from LMS database
             if (song_info is None or song["id"] != song_info["songinfo_loop"][0]["id"]) or int(song["id"]) < 0:
                 song_info = myServer.cls_song_info(song["id"], player_info['playerid'])
@@ -182,43 +194,55 @@ while True:
 
         else:
             title = song_title
-            max_car1 = len(artist) - 20
-            max_car2 = len(albumyear) - 20
-            max_car3 = len(title) -20
-            if decal1 > max_car1:
-                decal1 = 0
-            if decal2 > max_car2:
-                decal2 = 0
-            if decal3 > max_car3:
-                decal3 =0
-
-#            title = tracknumber + ") " + title
-            lcd.lcd_display_string(artist[decal1:20 + decal1], 1)
-            lcd.lcd_display_string(albumyear[decal2:20 + decal2], 2)
-            lcd.lcd_display_string(title[decal3:20 + decal3], 3)
-
-            # change between RATE of the songs and time remaining
-            lasttimer = int(str(timer)[-1:])
-            if (lasttimer < 4):
-                samplerate = str(lesssamplerate)
-                # handle case of SACD
-                if bitrate == "0":
-                    bitrate = ''
-                lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
+            if song != last_song:
+                pass
             else:
-                elapsed = strftime("%M:%S", gmtime(player["time"])) + " (" + strftime("%M:%S", gmtime(int(duration))) + ")"
-                lcd.lcd_display_string("" + track_pos + " " + elapsed, 4)
+                washere = 0
+                lcd.display_on()
+                max_car1 = len(artist) - 20
+                max_car2 = len(albumyear) - 20
+                max_car3 = len(title) -20
+                if decal1 > max_car1:
+                    decal1 = 0
+                if decal2 > max_car2:
+                    decal2 = 0
+                if decal3 > max_car3:
+                    decal3 =0
 
-            decal1 = decal1 + 1
-            decal2 = decal2 + 1
-            decal3 = decal3 + 1
-
-        last_song = song
-        timer += 1
-        sleep(sleep_duration)
+                lcd.lcd_display_string(artist[decal1:20 + decal1], 1)
+                lcd.lcd_display_string(albumyear[decal2:20 + decal2], 2)
+                lcd.lcd_display_string(title[decal3:20 + decal3], 3)
+    
+                # change between RATE of the songs and time remaining
+                lasttimer = int(str(timer)[-1:])
+                if (lasttimer < 4):
+                    samplerate = str(lesssamplerate)
+                    # handle case of SACD
+                    if bitrate == "0":
+                        bitrate = ''
+                    lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
+                else:
+                    elapsed = strftime("%M:%S", gmtime(player["time"])) + " (" + strftime("%M:%S", gmtime(int(duration))) + ")"
+                    lcd.lcd_display_string("" + track_pos + " " + elapsed, 4)
+    
+                decal1 = decal1 + 1
+                decal2 = decal2 + 1
+                decal3 = decal3 + 1
+    
+            last_song = song
+            timer += 1
+            sleep(sleep_duration)
     else:
-        today = datetime.today()
-        lcd.lcd_display_string("IP : " + ip, 1)
-        lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
-        lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
-        lcd.lcd_display_string("No LMS Playing Music? ", 4)
+        #today = datetime.today()
+        #lcd.lcd_display_string("IP : " + ip, 1)
+        #lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
+        #lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
+        #lcd.lcd_display_string("No LMS Playing Music? ", 4)
+        # backlight off each time, turn off only if not done previously
+        lcd.backlight_off()
+        if washere != 1:
+            washere = 1
+            turnoff()
+        else:
+            sleep(1)
+            pass
