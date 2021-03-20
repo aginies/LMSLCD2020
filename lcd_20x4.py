@@ -171,7 +171,6 @@ while True:
                     else:
                         current_title = ""
                     samplesize = get_from_loop(song_info["songinfo_loop"], "samplesize")
-                    print("D: ", samplesize)
                     samplerate = get_from_loop(song_info["songinfo_loop"], "samplerate")
                     if samplerate: lesssamplerate = float(samplerate)/1000
                     bitrate = get_from_loop(song_info["songinfo_loop"], "bitrate")
