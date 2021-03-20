@@ -241,11 +241,6 @@ while True:
         #lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
         #lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
         # backlight off each time, turn off only if not done previously
-        lcd.lcd_display_string("No LMS Playing Music? ", 1)
-        lcd.lcd_display_string("Turning off LCD...", 2)
-        lcd.lcd_display_string(today.strftime(""), 3)
-        lcd.lcd_display_string(today.strftime(""), 4)
-        sleep(2)
         lcd.backlight_off()
         if washere != 1:
             washere = 1
