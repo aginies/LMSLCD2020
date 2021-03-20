@@ -34,7 +34,6 @@ args = parser.parse_args()
 
 # GET IP FROM INTERFACE
 hostnm = socket.gethostname()
-ip = ni.ifaddresses(args.inet)[ni.AF_INET][0]['addr']
 wip = ni.ifaddresses("wlan0")[ni.AF_INET][0]['addr']
 
 def getPlayersInfo()->dict:
@@ -91,8 +90,8 @@ def screen_lms_info():
     else:
         #player = myServer.cls_player_current_title_status(player_info['playerid'])
         server = server_status["result"]
-        lcd.lcd_display_string("IP: eth0 | wlan0", 1)
-        lcd.lcd_display_string("" + ip + " " + wip, 2)
+        lcd.lcd_display_string("IP: wlan0", 1)
+        lcd.lcd_display_string("" + wip, 2)
         lcd.lcd_display_string("LMS Version: " + server["version"], 3)
         #lcd.lcd_display_string("Players counts:" + str(server["player count"]), 4)
         lcd.lcd_display_string("LMS IP: " + str(server["ip"]), 4)
@@ -141,7 +140,7 @@ screen_lms_info()
 last_song = {}
 album = ""
 song_info = None
-sleep_duration = 0.4
+sleep_duration = 0.8
 
 # add a timer to switch display on line 4
 timer = 0
@@ -172,6 +171,7 @@ while True:
                     else:
                         current_title = ""
                     samplesize = get_from_loop(song_info["songinfo_loop"], "samplesize")
+                    print("D: ", samplesize)
                     samplerate = get_from_loop(song_info["songinfo_loop"], "samplerate")
                     if samplerate: lesssamplerate = float(samplerate)/1000
                     bitrate = get_from_loop(song_info["songinfo_loop"], "bitrate")
@@ -221,7 +221,7 @@ while True:
                     # handle case of SACD
                     if bitrate == "0":
                         bitrate = ''
-                    if samplesize != '':
+                    if samplesize == "0":
                         samplesize = "16"
                     lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
                 else:
@@ -240,8 +240,12 @@ while True:
         #lcd.lcd_display_string("IP : " + ip, 1)
         #lcd.lcd_display_string(today.strftime("Date: %d/%m/%Y"), 2)
         #lcd.lcd_display_string(today.strftime("Clock: %H:%M:%S"), 3)
-        #lcd.lcd_display_string("No LMS Playing Music? ", 4)
         # backlight off each time, turn off only if not done previously
+        lcd.lcd_display_string("No LMS Playing Music? ", 1)
+        lcd.lcd_display_string("Turning off LCD...", 2)
+        lcd.lcd_display_string(today.strftime(""), 3)
+        lcd.lcd_display_string(today.strftime(""), 4)
+        sleep(2)
         lcd.backlight_off()
         if washere != 1:
             washere = 1
