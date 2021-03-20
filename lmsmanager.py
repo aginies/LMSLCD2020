@@ -208,9 +208,12 @@ class LmsServer:
         : dict containing info
         """
         
-        payload = '{"id": 0,"params": ["' + player_id + '",["songinfo",0,100,"track_id:' + str(song_id) + '"]],"method": "slim.request"}'
+        payload = '{"id": 0,"params": ["' + player_id + '",["songinfo",0,200,"track_id:' + str(song_id) + '"]],"method": "slim.request"}'
 
         song_info = self._cls_execute_request(payload)
+        if song_info["result"] == {}:
+            # no DATA this is not good.... returning /dev/null to avoid bug
+            song_info["result"] = {'songinfo_loop': [ {'id': ''}, {'title': 'NA...'}, {'artist': 'NA...'}, {'coverid': '1'}, {'duration': '0'}, {'coverart': '0'}, {'album': 'NA...'}, {'type': 'NA...'}, {'bitrate': '???kbps'}, {'remote': 1}, {'year': '0'}, {'channels': '2'}, {'samplesize': '0'}, {'artwork_url': 'jpg'}, {'samplerate': '0'}]}
         return song_info["result"]
 
     def cls_server_status(self)->dict:
