@@ -11,7 +11,7 @@ from time import time
 from time import strftime
 from time import gmtime
 from typing import ChainMap
-from lmsmanager import LMS_SERVER
+from lmsmanager import LmsServer
 import socket
 import netifaces as ni
 import signal
@@ -35,6 +35,7 @@ args = parser.parse_args()
 # GET IP FROM INTERFACE
 hostnm = socket.gethostname()
 ip = ni.ifaddresses(args.inet)[ni.AF_INET][0]['addr']
+wip = ni.ifaddresses("wlan0")[ni.AF_INET][0]['addr']
 
 def getPlayersInfo()->dict:
     """
@@ -90,8 +91,8 @@ def screen_lms_info():
     else:
         #player = myServer.cls_player_current_title_status(player_info['playerid'])
         server = server_status["result"]
-        lcd.lcd_display_string("LCD Displayer's IP:", 1)
-        lcd.lcd_display_string(" " + ip, 2)
+        lcd.lcd_display_string("IP: eth0 | wlan0", 1)
+        lcd.lcd_display_string("" + ip + " " + wip, 2)
         lcd.lcd_display_string("LMS Version: " + server["version"], 3)
         #lcd.lcd_display_string("Players counts:" + str(server["player count"]), 4)
         lcd.lcd_display_string("LMS IP: " + str(server["ip"]), 4)
@@ -123,16 +124,16 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 # workaround to turn off screen 
-# each lcd_write wake up the screen, so we can not do
-# display_off and backlight_off....
+# ecah lcd_write wake up the screen, so we can not do
+# display_off backlight_off 
 # instead display_off and check the backlight_off
-# so only one is done, so no more lcd_write
+# so one is done only, so no more lcd_write
 def turnoff():
     lcd.display_off()
     sleep(2)
 
 # STARTING
-myServer = LMS_SERVER(args.server)
+myServer = LmsServer(args.server)
 server_status = myServer.cls_server_status()
 screen_lms_info()
 
@@ -172,7 +173,7 @@ while True:
                         current_title = ""
                     samplesize = get_from_loop(song_info["songinfo_loop"], "samplesize")
                     samplerate = get_from_loop(song_info["songinfo_loop"], "samplerate")
-                    lesssamplerate = float(samplerate)/1000
+                    if samplerate: lesssamplerate = float(samplerate)/1000
                     bitrate = get_from_loop(song_info["songinfo_loop"], "bitrate")
                     songtype = get_from_loop(song_info["songinfo_loop"], "type")
                     tracknumber = get_from_loop(song_info["songinfo_loop"], "tracknum")
@@ -220,6 +221,8 @@ while True:
                     # handle case of SACD
                     if bitrate == "0":
                         bitrate = ''
+                    if samplesize != '':
+                        samplesize = "16"
                     lcd.lcd_display_string((samplesize + "/" + samplerate + ' ' + bitrate)[:20] + " " + songtype, 4)
                 else:
                     elapsed = strftime("%M:%S", gmtime(player["time"])) + " (" + strftime("%M:%S", gmtime(int(duration))) + ")"
@@ -244,5 +247,5 @@ while True:
             washere = 1
             turnoff()
         else:
-            sleep(1)
+            sleep(2)
             pass
