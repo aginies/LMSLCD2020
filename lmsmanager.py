@@ -261,6 +261,11 @@ class LmsServer:
 
 
 if __name__ == "__main__":
+    print("--- LMS API Requester ---")
+    print("please use -s option to define your IP:PORT address")
+    print("ie: python lmsmanager.py -s 192.168.1.112:9000")
+    print("note: at least one player shoud be playing for demoing!")
+
     description = "LMS API Requester"
     server_help = "ip and port for the server. something like 192.168.1.192:9000"
     parser = argparse.ArgumentParser(description = description)
@@ -273,7 +278,7 @@ if __name__ == "__main__":
     myServer.cls_server_scanning_status()
 
     players = myServer.cls_players_list()
-    
+
     for player in players:
         if player["isplaying"] == 1:
             print("Waoo ->" + player['name'])
