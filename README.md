@@ -46,12 +46,12 @@ Show information on an LCD screen from a Logitech Media Server (like https://www
 
 **lcd_20x4.py**:
 
-* smbus
 * netifaces
-* socket
 * signal
 * json
 * argparse
+* unicodedata
+* time
 
 **lcd_ili9341.py**:
 
