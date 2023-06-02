@@ -1,22 +1,28 @@
-#!/usr/bin/python3
 """
-2020-01-25: Renaud wants to use Python3 "requests" for LMS
+2020-01-25: we want to use Python3 "requests" for LMS
 
-There was something existing but in python2 and something else than requests
+There was something existing but in python2 not using requests
 The goal was to use Python3 and Request to have something more "modern"
 
-This is just some code has a hobby and maybe an help to decypher the
-LMS API.
+Some code has a hobby and maybe an help to decypher the LMS API.
 """
 
+import sys
 import requests
 import argparse
 from json import dumps
 
+
 class LmsServer:
     """
     This class to grab informations from the LMS SERVER
-    2020-03-18: v1.1.1: cleaning code (todo: doc)
+    2023-01-02: V1.2.2: adding sys.stderr.write when request fails
+    2022-07-26: V1.2.1: returns [] when no player found
+    2021-03-24: V1.2.0: adding 2 methods
+                            - cls_player_playlist_clear
+                            - cls_player_playlist_add
+    2021-03-20: v1.1.2: mode docstring
+    2021-03-18: v1.1.1: cleaning code (todo: doc)
                             - dead method
                             - better naming
                         add methods
@@ -26,16 +32,17 @@ class LmsServer:
                             - server is scanning
                             - server scanning status
 
-    2020-03-10: v1.0.1: cleaning code
-    2020-03-09: v1.0.0: "Official" v1 version!
-    2020-01-25: v0.0.1: starting
+    2021-03-10: v1.0.1: cleaning code
+    2021-03-09: v1.0.0: "Official" v1 version!
+    2021-01-25: v0.0.1: starting
 
     """
-    def __init__(self, serveur_ip):
+    def __init__(self, serveur_ip:str):
         """
-
+        Init the class
+        serveur_ip: str, the ip address of the LMS server
         """
-        self.__version__ = "1.1.0"
+        self.__version__ = "1.2.2"
         self.URL = "http://" + serveur_ip + "/jsonrpc.js" 
 
     def _cls_execute_request(self, payload)-> dict:
@@ -47,6 +54,8 @@ class LmsServer:
         try:
             response = requests.request("POST", url=self.URL, headers=headers, data=payload)
         except Exception as err:
+            sys.stderr.write("LmsServer v" + self.__version__ + " cannot get response from: " + self.URL)
+            print("LmsServer v" + self.__version__ + " cannot get response from: " + self.URL)
             print(str(err))
             return err
         return response.json()
@@ -56,16 +65,21 @@ class LmsServer:
         Returns a list of players
         detected connected to the server
 
-        - Output
+        input
+        : None
+        
+        returns
         : players, list of dict
+        
         """
-
+        players = []
         payload='{"id": 0, "params": ["-",["players","0"]],"method":"slim.request"}'
 
         try:
             players = self._cls_execute_request(payload)["result"]["players_loop"]
         except Exception as err:
-            return err
+            print(str(err))
+            return []
         # for player in players:
         #    print(player["playerid"] + " =" + player["modelname"] + " - " + player["name"] + " : " + str(player["isplaying"]))
         
@@ -76,9 +90,13 @@ class LmsServer:
         """
         player on or off
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         : on_off: int, value between 0-1, 0=OFF, 1=ON
+
+
+        returns
+        : None
         """
         if on_off == 0 or on_off == 1:
             payload = '{"id": 0, "params": ["' + mac_player + '",["power","' + str(on_off) + '"]],"method": "slim.request"}'
@@ -91,9 +109,12 @@ class LmsServer:
         """
         player on or off
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         : seconds_before_sleep: number of seconds before sleep
+
+        returns
+        : None
         """
 
         payload = '{"id": 0, "params": ["' + mac_player + '",["sleep","' + str(seconds_before_sleep) + '"]],"method": "slim.request"}'
@@ -104,9 +125,12 @@ class LmsServer:
         """
         Define the volume for specified player
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         : volume: int, between 0-100
+
+        returns
+        : None
         """
         if volume > 100:
             volume = 100
@@ -122,7 +146,7 @@ class LmsServer:
         """
         player play!
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         
         """
@@ -135,7 +159,7 @@ class LmsServer:
         """
         player stop!
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         
         """
@@ -148,7 +172,7 @@ class LmsServer:
         """
         player on or off
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
         : skip: number of track(s) to skip, ie 1, -1, 4, -2...
         """
@@ -161,10 +185,10 @@ class LmsServer:
         """
         player status
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
 
-        Output
+        returns
         : dict: list of information about the player
         
         """
@@ -180,10 +204,10 @@ class LmsServer:
         """
         player status
 
-        Input
+        input
         : mac_player: str, the player mac address, ie: 5a:65:a2:33:80:79
 
-        Output
+        returns
         : dict: list of information about the player
         
         """
@@ -195,30 +219,59 @@ class LmsServer:
             return player_status["result"]
         except:
             return None
+
+    def cls_player_playlist_clear(self, mac_player:str)->None:
+        """
+        Clear the playlist for the player
+        input
+        : player_id: str as a MAC address, ie : "00:11:22:33:44:55:66"
+
+        returns
+        : None
+
+        """
+        payload = '{"id": 0, "params": ["' + mac_player + '",["playlist","clear"]],"method": "slim.request"}'
+        self._cls_execute_request(payload)
+        print("clear playlist")
+
+    def cls_player_playlist_add(self, mac_player:str, playlist_name:str)->None:
+        """
+        Clear the playlist for the player
+        input
+        : mac_player: str as a MAC address, ie : "00:11:22:33:44:55:66"
+        : playlist_name: str, the mu3 file without extension, ie "pitsf_preset1"
+
+        returns
+        : None
+
+        """
+        payload = '{"id": 0, "params": ["' + mac_player + '",["playlist","add","' + playlist_name + '"]],"method": "slim.request"}'
+        self._cls_execute_request(payload)
+        print("add playlist" + playlist_name)
+
+
     
-    def cls_song_info(self, song_id, player_id):
+    def cls_song_info(self, song_id, mac_player:str)->dict:
         """
         Grab info about song
 
-        Input
+        input
         : song_id; int
-        : palyer_id: str as a MAC address, ie : "00:11:22:33:44:55:66"
+        : mac_player: str as a MAC address, ie : "00:11:22:33:44:55:66"
 
-        Output:
+        returns
         : dict containing info
         """
         
-        payload = '{"id": 0,"params": ["' + player_id + '",["songinfo",0,200,"track_id:' + str(song_id) + '"]],"method": "slim.request"}'
+        payload = '{"id": 0,"params": ["' + mac_player + '",["songinfo",0,100,"track_id:' + str(song_id) + '"]],"method": "slim.request"}'
 
         song_info = self._cls_execute_request(payload)
-        if song_info["result"] == {}:
-            # no DATA this is not good.... returning /dev/null to avoid bug
-            song_info["result"] = {'songinfo_loop': [ {'id': ''}, {'title': 'NA...'}, {'artist': 'NA...'}, {'coverid': '1'}, {'duration': '0'}, {'coverart': '0'}, {'album': 'NA...'}, {'type': 'NA...'}, {'bitrate': '???kbps'}, {'remote': 1}, {'year': '0'}, {'channels': '2'}, {'samplesize': '0'}, {'artwork_url': 'jpg'}, {'samplerate': '0'}]}
         return song_info["result"]
 
     def cls_server_status(self)->dict:
         """
         grab the server status
+
         """
         payload = '{"id": 0,"params": ["-",["serverstatus",0,100]],"method": "slim.request"}'
         server_status = self._cls_execute_request(payload)
@@ -227,9 +280,9 @@ class LmsServer:
 
     def cls_server_is_scanning(self)->bool:
         """
-        Return:
-            : True if scanning
-            : False otherwise
+        returns:
+        : True if scanning
+        : False otherwise
         """
         payload = '{"id": 0, "params": ["00:00:00:00:00",["rescanprogress"]],"method": "slim.request"}'
         rescan = self._cls_execute_request(payload)
@@ -243,15 +296,18 @@ class LmsServer:
 
     def cls_server_scanning_status(self)->dict:
         """
-        Return:
-            : rescan["result"] dict if scanning, ie
-                {'discovering_directory': -1,
-                 'fullname': 'Discovering files/di...o/Musiques', 
-                 'info': '/mnt/syno/Musiques/J...and I.flac',
-                 'rescan': 1, 
-                 'steps': 'discovering_directory',
-                 'totaltime': '00:00:30'}
-            : if not scanning: {'rescan': 0}  
+        check the server to know the scan status
+        and returns the scan status
+
+        returns
+        : rescan["result"] dict if scanning, ie
+            {'discovering_directory': -1,
+                'fullname': 'Discovering files/di...o/Musiques', 
+                'info': '/mnt/syno/Musiques/J...and I.flac',
+                'rescan': 1, 
+                'steps': 'discovering_directory',
+                'totaltime': '00:00:30'}
+        if not scanning: {'rescan': 0}  
         """
         
         payload = '{"id": 0, "params": ["00:00:00:00:00",["rescanprogress"]],"method": "slim.request"}'
@@ -261,6 +317,7 @@ class LmsServer:
 
 
 if __name__ == "__main__":
+
     print("--- LMS API Requester ---")
     print("please use -s option to define your IP:PORT address")
     print("ie: python lmsmanager.py -s 192.168.1.112:9000")
@@ -278,7 +335,7 @@ if __name__ == "__main__":
     myServer.cls_server_scanning_status()
 
     players = myServer.cls_players_list()
-
+    
     for player in players:
         if player["isplaying"] == 1:
             print("Waoo ->" + player['name'])
@@ -297,8 +354,12 @@ if __name__ == "__main__":
             myServer.cls_player_on_off(player['playerid'], 0)
             myServer.cls_player_on_off(player['playerid'], 1)
             
+            # clear playlist
+            myServer.cls_player_playlist_clear(player['playerid'])
+
+
             # Sleep in 1000 seconds
-            myServer.cls_player_sleep(player['playerid'], 1000)
+            # myServer.cls_player_sleep(player['playerid'], 1000)
 
             myServer.cls_player_status(player['playerid'])
             song = myServer.cls_player_current_title_status(player['playerid'])
